@@ -18,13 +18,11 @@ export const useFetch = (url) => {
         // setState({ data: null, loading: true });
         setState(state => ({ data: state.data, loading: true })); // smoother ui
         fetch(url)
-            .then(x => x.text())
+            .then(x => x.json())
             .then(y => {
-                setTimeout(() => {
-                    if (isCurrent.current) {
-                        setState({ data: y, loading: false })
-                    }
-                }, 2000);
+                if (isCurrent.current) {
+                    setState({ data: y, loading: false })
+                }
             });
     }, [url, setState])
 

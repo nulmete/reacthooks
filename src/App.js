@@ -1,36 +1,40 @@
 import logo from './logo.svg';
 import './App.css';
-import { Hello } from './Hello';
-import { useCallback, useState } from 'react';
-import { Square } from './Square';
+import { useState, useMemo } from 'react';
+import { useFetch } from "./useFetch";
+
+const computeLongestWord = (arr) => {
+  if (!arr) {
+    return [];
+  }
+
+  console.log('computing longest word');
+
+  let longestWord = '';
+
+  arr.forEach(sentence => {
+    sentence.split(' ').forEach(word => {
+      if (word.length > longestWord.length) {
+        longestWord = word;
+      }
+    });
+  });
+
+  return longestWord;
+}
 
 function App() {
   const [count, setCount] = useState(0);
-  const favoriteNums = [7, 21, 37];
+  const { data } = useFetch('https://raw.githubusercontent.com/ajzbc/kanye.rest/quotes/quotes.json');
 
-  // when count or setCount change, increment fn is recreated
-  // const increment = useCallback(() => {
-  //   setCount(count + 1);
-  // }, [count, setCount]);
-  
-  const increment = useCallback((n) => {
-    setCount(c => c + n);
-  }, [setCount]);
+  const longestWord = useMemo(() => computeLongestWord(data), [data]);
 
   return (
     <div>
-      {/* this lambda is created on every single render */}
-      <Hello increment={increment} />
       <div>count: {count}</div>
-
-      {favoriteNums.map(n => {
-        return (
-          // <Square onClick={() => increment(n)} n={n} key={n} />
-
-          // prevent re-rendering moving increment logic to Square component
-          <Square increment={increment} n={n} key={n} />
-        );
-      })}
+      <button onClick={() => setCount(count + 1)}>increment</button>
+      {/* <div>{computeLongestWord(data)}</div> */}
+      <div>{longestWord}</div>
     </div>
   );
 }
