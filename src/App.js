@@ -1,67 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
-import { useReducer, useState } from 'react';
-
-function reducer(state, action) {
-  // state: current value
-  // action: function called - param received from dispatch(param)
-  switch (action.type) {
-    // case 'increment':
-      // do not use 'state++' because it mutates the state
-    //   return state + 1;
-    // case 'decrement':
-    //   return state - 1;
-    case 'add-todo':
-      return {
-        todos: [...state.todos, { text: action.text, completed: false }],
-        todoCount: state.todoCount + 1
-      }
-    case 'toggle-todo':
-      return {
-        todos: state.todos.map((t, idx) => idx === action.idx ? { ...t, completed: !t.completed } : t),
-        todoCount: state.todoCount
-      }
-    default:
-      return state;
-  }
-}
+import React, { useState, useMemo } from "react";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Index } from "./pages";
+import { About } from "./pages/about";
+import { UserContext } from "./UserContext";
 
 function App() {
-  // const [count, dispatch] = useReducer(reducer, 0);
+  const [user, setUser] = useState(null);
 
-  const [{ todos, todoCount }, dispatch] = useReducer(reducer, { todos: [], todoCount: 0 });
-  const [text, setText] = useState();
+  const value = useMemo(() => ({ user, setUser }), [user, setUser]);
 
   return (
-    <div>
-      {/* <div>count: {count}</div>
-      <button onClick={() => dispatch({ type: 'increment' })}>increment</button>
-      <button onClick={() => dispatch({ type: 'decrement' })}>decrement</button> */}
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/about/">About</Link>
+            </li>
+          </ul>
+        </nav>
 
-      <form onSubmit={e => {
-        e.preventDefault();
-        dispatch({ type: 'add-todo', text });
-        setText('');
-      }}>
-        <input type="text" value={text || ''} onChange={e => setText(e.target.value)} />
-      </form>
-
-      {/* <pre>
-        {JSON.stringify(todos, null, 2)}
-      </pre> */}
-
-      <div>number of todos: {todoCount}</div>
-
-      {todos.map((t, idx) => (
-        <div
-          key={t.text}
-          onClick={() => dispatch({ type: 'toggle-todo', idx })}
-          style={{
-            textDecoration: t.completed ? 'line-through' : ''
-          }}
-        >{t.text}</div>
-      ))}
-    </div>
+        {/* wrap child components that will use the UserContext in a Provider */}
+        {/* <UserContext.Provider value={{ value, setValue }}> */}
+        <UserContext.Provider value={value}>
+          <Route path="/" exact component={Index}></Route>
+          <Route path="/about/" component={About}></Route>
+        </UserContext.Provider>
+      </div>
+    </Router>
   );
 }
 
